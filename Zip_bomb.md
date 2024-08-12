@@ -10,18 +10,18 @@
 
 Скачиваем архив и распаковываем
 
-![img_10.png](img_10.png)
+![img_10.png](images/img_10.png)
 
 Для удобства перейдем на линукс (В нашем случае wsl)
-![img_11.png](img_11.png)
+![img_11.png](images/img_11.png)
 
 Перед нами огромное кол-во текстовых файлов (10к)
-![img_12.png](img_12.png)
+![img_12.png](images/img_12.png)
 
 Тут поможет grep
 ```shell
 grep -r "\{" ./
 ```
-![img_13.png](img_13.png)
+![img_13.png](images/img_13.png)
 
 Флаг найден
