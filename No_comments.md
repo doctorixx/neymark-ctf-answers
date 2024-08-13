@@ -1,12 +1,18 @@
 # No comments
 
 # Описание задачи
+Анонимный источник сообщил, что этот сайт содержит в себе информацию, которая может повредить репутации страны. 
+
+> Рекомендуется не использовать автоматические инструменты, если не хотите оказаться в тюрьме
+
 
 Найдите флаг на сайте
 
 dxctf{...}
 
-https://neymark-task-nocomments-8l1k6.kinsta.page/
+# Подключение
+https://ctf-task-0001.doctorixx.ru/
+
 
 # Решение
 
@@ -22,3 +28,6 @@ https://neymark-task-nocomments-8l1k6.kinsta.page/
 На странице Portfolio находим флаг
 
 ![cfgvhbjn.png](images/cfgvhbjn.png)
+
+# флаг
+dxctf{c0mment_hehe_br0}
