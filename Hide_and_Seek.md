@@ -1,9 +1,12 @@
 # Hide and seek
 
 # Описание задачи
-Найдите флаг на сайте dxctf{...}
+Мы наткнулись на сайт одной подозрительной компании, которая, как мы думаем, занимается незаконными вещами. Восстановите справедливость!
 
-https://neymarkctftask01.tiiny.site/
+
+Найдите флаг на сайте
+dxctf{...}
+
 
 # Решение
 
@@ -14,3 +17,7 @@ https://neymarkctftask01.tiiny.site/
 
 ![img_1.png](images/img_1.png)
 
+
+# Флаг
+
+dxctf{thats_was_easy_4eburek}
