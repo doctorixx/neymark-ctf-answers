@@ -1,5 +1,10 @@
+# SmartphoneVIVO
 
-\<DELETED\>
+СМАРТФОНVIVO
+
+Недавно (вероятно, после вписки) вы купили сей самый лучший смартфон в мире. Но что-то мне подсказывает, что с ним не всё так просто. Найди это, что бы это ни было
+
+*flag is \<DELETED\>*
 
 dxctf{...}
 
@@ -50,6 +55,7 @@ HiThankstoyouforfindingmeIhaveareallynice<DELETED>foryouBeatingthis<DELETED>will
 Ну вроде бы видно английские словечки. Расставив пробелы получаем шифр `bTMwd19zbWFydHBob25lVklWT19tMzB3`. Ну не думаю что составит труда пробить её на http://dcrypt.fr, понять что это base64 и получить пароль от архива: `m30w_smartphoneVIVO_m30w`. Распаковывем и достаём `flag.txt` с ответом.
 
 **PROFIT!**
+
 ### Флаг
 
 ```

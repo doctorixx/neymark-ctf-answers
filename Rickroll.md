@@ -1,11 +1,15 @@
-Never gonna give you up...
+# Rickroll
 
-Найди рикролл-флаг
+Never gonna give you up
+
+За мою жизнь меня довольно часто рикроллили. А теперь давай проверим, насколько легко зарикроллить тебя
 
 Формат флага: AviaSales{...}
 
+Тут нужен только рикролл-флаг
+
 Files attached: **AviaSales.docx**
-Points offered: 100
+Points offered: **100**
 
 ### Врайтап
 
@@ -28,4 +32,3 @@ Comment                         : AviaSales{r1ckr0ll_mA5t3r!}
 ```
 AviaSales{r1ckr0ll_mA5t3r!}
 ```
-
