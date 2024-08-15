@@ -26,3 +26,5 @@ grep -r "\{" ./
 ![img_13.png](images/img_13.png)
 
 Флаг найден
+
+dxctf{y0u_crazyyy}
