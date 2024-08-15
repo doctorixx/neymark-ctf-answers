@@ -21,3 +21,6 @@ d99ba28bc68b3cb8e87927cda2719ee94906d60a
 Решением задачи является перейти по ссылке https://ctf.doctorixx.ru/d99ba28bc68b3cb8e87927cda2719ee94906d60a.txt
 
 ![img.png](images/bhjnbh.png)
+
+# Флаг
+dxctf{n0_g0buster_and_ffuf}

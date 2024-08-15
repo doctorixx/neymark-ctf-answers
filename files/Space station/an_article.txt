@@ -1,0 +1,109 @@
+This is the first of a three-part essay on modern character string processing for computer programmers. Here I explain and illustrate the methods for storing Unicode characters in byte sequences in computers, and discuss their advantages and disadvantages. These methods have well-known names like UTF-8 and UTF-16.
+   		  	  
+The next essay will consider string handling in the Java, and to a lesser extent C#, computer languages and argue that it is significantly broken, both in terms of efficiency and correctness. The third essay will propose a new approach to string handling in Java.
+	
+I've previously discussed Unicode, and recommended it enthusiastically as something that any modern programmer needs to be at least somewhat on top of. Let's assume that when you're processing text, the characters you're going to be processing are Unicode characters. How do you store them in memory? This turns out to be more complicated than you'd think, and can really matter to the programmer.
+     				   
+Before Unicode · In the early decades of our profession, much computing was centered in North American and done in English. You stored your text in ASCII or EBCDIC characters, which were stored one-per-byte in memory, ASCII using 7 and EBCDIC 8 bits of each byte. In other parts of the world, they invented their own systems for storing their own characters. In Japan, these are various flavors of the “JIS” encoding, “KOI8” for Russian, various “ISCII” standards for the languages of India, and so on. I am told that at one time, there were more than twelve different systems in use for Chinese text in Taiwan alone.
+	
+For the huge number of people in America, Europe, and the Middle East who use relatively small alphabets, there was ISO-8859, parts 1 through 10, which left ASCII as ASCII and used the range 128 through 255 for accented characters (parts 1 through 4), Cyrillic (part 5), Arabic (6), Greek (7), Hebrew (8), and then more accented characters for Turkish and Nordic lanuages in parts 9 and 10. Of course, you could only be using one part at a time, so you couldn't easily have Greek and Polish in the same sentence.
+     		   		
+Finally, there were the proprietary encodings dreamed up by operating system makers such as Apple, and Microsoft with its “code pages.”
+	
+Clearly, this was an unsatisfactory situation. A partial solution was provided by ISO 2022, which allowed you to combine many different encodings, with “shift sequences” that allowed you to shift from one encoding to another in the middle of a string. Until recently, when I got email with mangled headers from Asia, I'd often see the letters “ISO2022” in among the junk. ISO2022 was difficult and irritating for programmers and few will miss it.
+     			 	  
+It's important to note that pretty well all the characters from ASCII and EBCDIC and JIS and KOI8 and ISCII and Taiwan and ISO 8859 made it into Unicode. So at one level, it's reasonable to think of all these things as encodings of Unicode, if only of parts of Unicode. XML blesses this approach, and allows you to encode XML text in any old encoding at all, but doesn't provide a guarantee that software will be able to read anything but the standard Unicode UTF encodings, which we'll discuss below.
+	
+The Characters in Unicode · As discussed in the previous article, Unicode characters are identified by number or “code point”, usually given in hexadecimal, so for example the Hebrew letter “he” is 5D4, usually written U+05D4.
+     		  		 
+Unicode currently defines just under 100,000 characters, but has space for 1,114,112 code points. They are organized into 17 “planes” of 216 (65,536) characters, numbered 0 through 16. Plane 0 is called the “Basic Multilingual Plane” or BMP and contains pretty well everything useful. In particular, it contains every character that had ever been available to a computer programmer before Unicode came along.
+	
+The characters in the BMP are dealt out more or less West to East, with the ASCII characters having their familiar ASCII values from 0 to 127, the ISO-Latin-1 characters retaining their values from 128 to 255, and then (ignoring special characters and math and so on) moving East in Europe (Greek, Cyrillic), on to the Middle East (Arabic, Hebrew), across the Indus (the scripts of India), through Southeast Asia (Thai, Laotian and so on) and ending up with the vast character sets from China, Japan, and Korea.
+     				 		
+Past the BMP, planes 1 through 16 are sometimes humorously called the “astral planes” and are used for exotic, rare, and historically important characters. A quick glance at the code charts shows a few examples: “Old Italic,” “Deseret,” and ”Byzantine Musical Symbols.”
+	
+The Sixteen-Bit Illusion · In the early days of the Unicode consortium, there was some thought that Unicode would be a sixteen-bit design, and the notion of a “16-bit Unicode character” is still often encountered.
+     			 			
+While this is notion is fundamentally wrong (because of the extra material in the “astral planes”) it's hard to stamp out because it's almost right. I've never had the need to deal with a character outside of the BMP, and such beasts are likely to remain rare at least in the near term.
+	
+I think, though, that hardwiring in sixteen-bit assumptions is silly and dangerous; the history of computing contains many examples of these kinds of assumption, which turned out to be wrong. Many people assumed that 16 bits of address space is all you'd ever need, then repeated the error with 32 bits. And let's not forget the notion that you could store a year in two digits, because the software would never still be running when the year 2000 came around.
+     		 	   
+UTF · Along with the characters, Unicode also defines methods for storing them in byte sequences in a computer. One of the nice things about the recent 4.0 release of Unicode (I'd enclose a pointer, but it's only up at the Unicode site in draft form as of this writing, and might well be moving around) is that they've brought the descriptions of these techniques together in one place and organized them much better than before. This would be Chapter 3 of the standard, in particular the part starting at section 3.8.
+	
+There are three approaches, named UTF-8, UTF-16, and UTF-32. “UTF” may be explained as standing for Unicode Transformation Format, or UCS Transformation format where “UCS” stands for Unicode Character Set.
+      		   	
+example characters
+	
+I'm going to use the four characters illustrated above as examples. They are:
+     			 	  
+    U+0026 AMPERSAND (decimal 38)
+	
+    U+0416 CYRILLIC CAPITAL LETTER ZHE (decimal 1,046)
+      		  		
+    U+4E2D HAN IDEOGRAPH 4E2D (decimal 20,013)
+	
+    U+10346 GOTHIC LETTER FAIHU (decimal 66,374)
+     			  		
+Since the BMP has codepoints 0 through 65,535 (0 through FFFF hex), you can see that U+10346 is one of the astral-plane characters.
+	
+UTF-32 · This is about the simplest imaginable way of storing characters. As the name suggests, you use 32 bits or four bytes for each character. So each of the example characters would be stored as a 4-byte number with values 38, 1046, 20013, and 66374 respectively.
+     			    
+This corresponds to the way most modern C compilers store characters when they are declared as wchar_t (for example, on the Macintosh that I'm using now). On the other hand, if you're an English-speaker like me and most of your characters are ASCII, you're using 32 bits to store characters that could fit just fine into 8, which seems extremely wasteful.
+	
+Also, the old fashioned C-language routines like strcpy, strcmp, and so on won't work with this because they go a byte at a time and there are lots of bytes filled with zeros. Of course, there are equivalent routines that work with wchar_t rather than char arrays, but that's quite possibly not what you're using now.
+     	     	
+It's probably quite OK to use wchar_t characters in your programs if you can afford the memory overhead, but it may be unacceptably wasteful to use UTF-32 to store them on disk or transmit them over the wire.
+	
+The Problem of Byte Order · Saying that a character is stored in a four-byte integer doesn't quite solve the problem, because there are lots of ways to deal out 32 bits among four bytes; programmers may recall learning about “big-endian” and “little-endian” integers back in college. So if you send one of these four-byte quantities between two computers that have different ideas on how to deal out bytes, you can expect breakage.
+     		   		
+Fortunately, Unicode also has a solution to this problem: the wonderful magic character “U+FEFF ZERO WIDTH NO-BREAK SPACE”, essentially a no-op. The trick here (one which XML uses, by the way) is to lead off your message with one of these things. If you have your byte order backward, it'll show up as U+FFFE instead instead of U+FEFF. And Unicode cleverly guarantees that U+FFFE will never be a character, so this is easily detectible. The character, when used this way, is typically called a “Byte Order Mark.”
+	
+There's another approach, too. Unicode, along with UTF-32, also defines UTF-32BE and UTF-32LE (for Big End and Little End) which have a guaranteed byte ordering.
+      		  		
+UTF-16 · UTF-16 stores Unicode characters in sixteen-bit chunks. All the characters in the BMP appear as themselves, but clearly some trickery is going to be involved if you want to store astral-plane characters, because they just don't fit in sixteen bits.
+	
+To handle this, Unicode has a trick called the “Surrogate” blocks. There are two blocks of codepoints in the BMP, each 1,024 characters in size, the “high” surrogates starting at U+D800 and the “low” surrogates at U+DC00. These will never be used for ordinary characters. You split astral-plane characters in two, using one of the low surrogates for the low ten bits, and the high surrogates for the high ten bits. So U+10346 becomes encoded as two sixteen-bit quantities with values D800 and DF46. This gives you 220 characters, which just exactly fits the sixteen astral planes of 216 characters each.
+     	 					
+I'm skipping some detail here (you have to subtract hex 10000 from the code-point before splitting into surrogates) but it's conceptually easy and quite straightforward for programmers to implement. Also, when you look at a sixteen-bit quantity, you can tell right away whether it's an ordinary BMP character or half of an astral-plane character, and if so, which half.
+	
+Our first three example characters would be encoded naturally in sixteen bits, and the Gothic one in thirty-two bits via surrogates, as illustrated.
+     		  			
+At one level, UTF-16 hits an 80-20 point. At another, it's kind of kludgy and ugly, and is often summarized as “characters in Unicode are sixteen bits, except when they're not.”
+	
+UTF-16 potentially has a byte-ordering problem just like UTF-32, but the Byte Order Mark is there to help deal with that, and as you might expect, so are UTF-16BE and UTF-16LE.
+      		  		
+UTF-16 is probably what most people thought most programmers would use for Unicode; this is reflected in the fact that the native character type in both Java and C# is a sixteen-bit quantity. Of course, it doesn't really represent a Unicode character, exactly (although it does most times), it represents a UTF-16 codepoint.
+	
+UTF-16 is about the most efficient way possible of representing Asian character strings, each character nestling snugly into two bytes of storage. For ASCII characters, of course, you end up using two bytes to represent what would actually fit into one.
+     		 			 
+Also, UTF-16 is really irritating to deal with in C, since it's not the same size as wchar_t on most installations, but you still can't use strcpy and friends since lots of the bytes are zero.
+	
+UTF-8 · UTF-8 is a trick originally devised at Bell Labs as part of the “Plan 9” attempt to build the successor to Unix. It works like this: Characters whose value is less than 128 (i.e. ASCII) are encoded as themselves in one byte; the high-order bit will always be zero. (Which means that a pure ASCII text is actually UTF-8 as it sits.) The rest have their bits ripped apart and dealt out into several (from two to four) bytes as follows:
+     		 	  	
+    The first byte has a bunch of high-order one bits telling you how many bytes are used to encode the character, followed by a zero bit.
+	
+    The rest of the bytes each begin with a single one bit followed by a zero bit.
+     			 	 	
+    The bits of the character are dealt out in the space left over after these signaling bits.
+	
+Suppose a character is encoded in two bytes. Then the first byte has two one bits and a zero bit, leaving five bits of payload. The second has a one, a zero, and six bits of payload. Thus there are eleven bits of payload, and the biggest character that can squeeze into two bytes in UTF-8 is U+07FF, which is 11 ones.
+      	  	  
+In a three-byte encoding, the first byte has 4 signaling bits, so four bits of payload, and the remaining two each have six bits, so you get sixteen bits of payload. This means that anything in the BMP fits into three bytes of UTF-8.
+	
+Let's look at our examples:
+      	    	
+    U+0026, the ampersand, appears in one byte as itself.
+	
+    U+0416, Cyrillic zhe, is two bytes (in hex): D0, 96 (do the bit-twiddling, you'll see).
+     					 	
+    U+4E2D, the Chinese character, is three bytes: E4, B8, AD.
+	
+    U+10346, from the astral plane, becomes four: F0, 90, 8D, 86.
+  
+Is UTF-8 a Racist Kludge or a Stroke of Genius? · You may be forgiven for rolling your eyes at the details of UTF-8. I certainly did, the first time I ran across it. But actually, it turns out to have a lot of advantages, and only one really important disadvantage.
+
+Let's address the problem first: UTF-8 is kind of racist. It allows us round-eye paleface anglophone types to tuck our characters neatly into one byte, lets most people whose languages are headquartered west of the Indus river get away with two bytes per, and penalizes India and points east by requiring them to use three bytes per character.
+
+This is a serious problem, but it's not a technical problem. All that bit-twiddling turns out to be easy to implement in very efficient code; I've done it a few times, basically reading the rules and composing all the shifts and masks and so on, and gotten it pretty well right first time, each time. In fact, processing UTF-8 characters sequentially is about as efficient, for practical purposes, as any other encoding.
+
+There is one exception: you can't easily index into a buffer. If you need the 27th character, you're going to have to run through the previous twenty-six characters to figure out where it starts. Of course, UTF-16 has this problem too, unless you're willing to bet your future on never having to use astral-plane characters and pretend that Unicode characters are 16 bits, which they are (except when they're not).
